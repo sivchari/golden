@@ -15,10 +15,8 @@ type Differ struct {
 
 // Options configures diff behavior.
 type Options struct {
-	ContextLines    int
-	ColorOutput     bool
-	ShowLineNumbers bool
-	Algorithm       DiffAlgorithm
+	ContextLines int
+	Algorithm    DiffAlgorithm
 }
 
 // DiffAlgorithm specifies the diff algorithm to use.
@@ -65,10 +63,8 @@ type Diff struct {
 func New() *Differ {
 	return &Differ{
 		options: Options{
-			ContextLines:    3,
-			ColorOutput:     true,
-			ShowLineNumbers: true,
-			Algorithm:       AlgorithmSimple,
+			ContextLines: 3,
+			Algorithm:    AlgorithmSimple,
 		},
 	}
 }
@@ -212,11 +208,7 @@ func (d *Differ) myersDiff(expected, actual []string) *Diff {
 func (d *Differ) formatEqualChunk(buf *strings.Builder, chunk DiffChunk) {
 	for i, line := range chunk.Lines {
 		lineNum := chunk.StartA + i + 1
-		if d.options.ShowLineNumbers {
-			fmt.Fprintf(buf, " %4d  %s\n", lineNum, line)
-		} else {
-			fmt.Fprintf(buf, "  %s\n", line)
-		}
+		fmt.Fprintf(buf, " %4d  %s\n", lineNum, line)
 	}
 }
 
@@ -230,16 +222,7 @@ func (d *Differ) formatDeleteChunk(buf *strings.Builder, chunk DiffChunk) {
 
 // writeDeleteLine writes a single delete line with appropriate formatting.
 func (d *Differ) writeDeleteLine(buf *strings.Builder, line string, lineNum int) {
-	switch {
-	case d.options.ColorOutput && d.options.ShowLineNumbers:
-		fmt.Fprintf(buf, "\033[31m-%4d  %s\033[0m\n", lineNum, line)
-	case d.options.ColorOutput:
-		fmt.Fprintf(buf, "\033[31m- %s\033[0m\n", line)
-	case d.options.ShowLineNumbers:
-		fmt.Fprintf(buf, "-%4d  %s\n", lineNum, line)
-	default:
-		fmt.Fprintf(buf, "- %s\n", line)
-	}
+	fmt.Fprintf(buf, "\033[31m-%4d  %s\033[0m\n", lineNum, line)
 }
 
 // formatInsertChunk formats inserted lines.
@@ -252,16 +235,7 @@ func (d *Differ) formatInsertChunk(buf *strings.Builder, chunk DiffChunk) {
 
 // writeInsertLine writes a single insert line with appropriate formatting.
 func (d *Differ) writeInsertLine(buf *strings.Builder, line string, lineNum int) {
-	switch {
-	case d.options.ColorOutput && d.options.ShowLineNumbers:
-		fmt.Fprintf(buf, "\033[32m+%4d  %s\033[0m\n", lineNum, line)
-	case d.options.ColorOutput:
-		fmt.Fprintf(buf, "\033[32m+ %s\033[0m\n", line)
-	case d.options.ShowLineNumbers:
-		fmt.Fprintf(buf, "+%4d  %s\n", lineNum, line)
-	default:
-		fmt.Fprintf(buf, "+ %s\n", line)
-	}
+	fmt.Fprintf(buf, "\033[32m+%4d  %s\033[0m\n", lineNum, line)
 }
 
 // formatReplaceChunk formats replaced lines.

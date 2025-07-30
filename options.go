@@ -17,7 +17,6 @@ type Options struct {
 	CustomCompare func(expected, actual []byte) bool // For advanced users only
 
 	// Internal (automatically optimized)
-	colorOutput  bool      // Auto-detected from terminal
 	contextLines int       // Optimized for readability
 	bufferSize   int       // Performance optimized
 	maxFileSize  int64     // Safety limit
@@ -79,7 +78,6 @@ func defaultOptions() *Options {
 		IgnoreOrder: true, // Most JSON comparisons don't care about array order
 
 		// Optimized internal settings
-		colorOutput:  isTerminal(),     // Auto-detect color support
 		contextLines: 3,                // Good balance of context
 		bufferSize:   8192,             // Optimal for most file sizes
 		maxFileSize:  50 * 1024 * 1024, // 50MB safety limit
@@ -88,12 +86,3 @@ func defaultOptions() *Options {
 	}
 }
 
-// isTerminal detects if output supports colors.
-func isTerminal() bool {
-	// Simple heuristic - check if stdout is a terminal
-	if fileInfo, err := os.Stdout.Stat(); err == nil {
-		return (fileInfo.Mode() & os.ModeCharDevice) != 0
-	}
-
-	return false
-}

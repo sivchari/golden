@@ -49,10 +49,8 @@ func New(t *testing.T, opts ...Option) *Golden {
 
 	// Create differ with optimized options
 	diffOpts := differ.Options{
-		ContextLines:    options.contextLines,
-		ColorOutput:     options.colorOutput,
-		ShowLineNumbers: true,
-		Algorithm:       differ.AlgorithmSimple,
+		ContextLines: options.contextLines,
+		Algorithm:    differ.AlgorithmSimple,
 	}
 	diff := differ.NewWithOptions(diffOpts)
 
@@ -94,12 +92,15 @@ func (g *Golden) formatValue(value interface{}) []byte {
 	case nil:
 		return []byte("null")
 	default:
+		// Apply field filtering for JSON-serializable data
+		filtered := g.filterIgnoredFields(v)
+		
 		// Try to marshal as JSON (works for structs, maps, slices, etc.)
-		if jsonBytes, err := json.MarshalIndent(v, "", "  "); err == nil {
+		if jsonBytes, err := json.MarshalIndent(filtered, "", "  "); err == nil {
 			return jsonBytes
 		}
 		// Fall back to Go's default string representation
-		return []byte(fmt.Sprintf("%+v", v))
+		return []byte(fmt.Sprintf("%+v", filtered))
 	}
 }
 
@@ -132,6 +133,44 @@ func (g *Golden) formatJSON(jsonData []byte) []byte {
 	}
 
 	return formatted
+}
+
+// filterIgnoredFields removes ignored fields from JSON-serializable data.
+func (g *Golden) filterIgnoredFields(value interface{}) interface{} {
+	if len(g.options.IgnoreFields) == 0 {
+		return value
+	}
+
+	switch v := value.(type) {
+	case map[string]interface{}:
+		filtered := make(map[string]interface{})
+		for key, val := range v {
+			// Skip ignored fields
+			if g.shouldIgnoreField(key) {
+				continue
+			}
+			filtered[key] = g.filterIgnoredFields(val)
+		}
+		return filtered
+	case []interface{}:
+		filtered := make([]interface{}, len(v))
+		for i, val := range v {
+			filtered[i] = g.filterIgnoredFields(val)
+		}
+		return filtered
+	default:
+		return value
+	}
+}
+
+// shouldIgnoreField checks if a field should be ignored.
+func (g *Golden) shouldIgnoreField(field string) bool {
+	for _, ignored := range g.options.IgnoreFields {
+		if field == ignored {
+			return true
+		}
+	}
+	return false
 }
 
 // assertBytes is the internal implementation.
@@ -173,36 +212,21 @@ func (g *Golden) assertBytes(name string, actual []byte) {
 func (g *Golden) formatDiffError(filename, diffOutput string) string {
 	var buf strings.Builder
 
-	// Header with emojis and colors
-	if g.options.colorOutput {
-		buf.WriteString("🔍 \033[1;31mGolden test failed\033[0m\n")
-		buf.WriteString(fmt.Sprintf("📁 File: \033[1;36m%s\033[0m\n", filename))
-		buf.WriteString("\n")
-		buf.WriteString("🔄 \033[1;33mDifferences found:\033[0m\n")
-		buf.WriteString(strings.Repeat("─", 80))
-		buf.WriteString("\n")
-	} else {
-		buf.WriteString("Golden test failed\n")
-		buf.WriteString(fmt.Sprintf("File: %s\n", filename))
-		buf.WriteString("\n")
-		buf.WriteString("Differences found:\n")
-		buf.WriteString(strings.Repeat("-", 80))
-		buf.WriteString("\n")
-	}
+	// Header with colors
+	buf.WriteString("\033[1;31mGolden test failed\033[0m\n")
+	buf.WriteString(fmt.Sprintf("File: \033[1;36m%s\033[0m\n", filename))
+	buf.WriteString("\n")
+	buf.WriteString("\033[1;33mDifferences found:\033[0m\n")
+	buf.WriteString(strings.Repeat("─", 80))
+	buf.WriteString("\n")
 
 	// Add the diff output
 	buf.WriteString(diffOutput)
 
 	// Footer
-	if g.options.colorOutput {
-		buf.WriteString(strings.Repeat("─", 80))
-		buf.WriteString("\n")
-		buf.WriteString("💡 \033[1;32mTip: Run with update mode to accept changes\033[0m\n")
-	} else {
-		buf.WriteString(strings.Repeat("-", 80))
-		buf.WriteString("\n")
-		buf.WriteString("Tip: Run with update mode to accept changes\n")
-	}
+	buf.WriteString(strings.Repeat("─", 80))
+	buf.WriteString("\n")
+	buf.WriteString("\033[1;32mTip: Run with update mode to accept changes\033[0m\n")
 
 	return buf.String()
 }
