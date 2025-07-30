@@ -1,7 +1,5 @@
 {
-  "action": "login",
-  "session_id": "abc123-def456",
+  "action": "logi",
   "success": true,
-  "timestamp": "2025-07-23T17:17:45+09:00",
   "user_id": 123
 }
