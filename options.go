@@ -3,6 +3,7 @@ package golden
 import (
 	"io"
 	"os"
+	"strings"
 )
 
 // Options configures Golden test behavior with intelligent defaults.
@@ -72,7 +73,7 @@ func defaultOptions() *Options {
 	return &Options{
 		// Essential defaults
 		Dir:    "testdata",
-		Update: false,
+		Update: isUpdateModeFromEnv(), // Check GOLDEN_UPDATE environment variable
 
 		// Smart defaults for better experience
 		IgnoreOrder: true, // Most JSON comparisons don't care about array order
@@ -86,3 +87,14 @@ func defaultOptions() *Options {
 	}
 }
 
+// isUpdateModeFromEnv checks if update mode is enabled via GOLDEN_UPDATE environment variable.
+func isUpdateModeFromEnv() bool {
+	env := os.Getenv("GOLDEN_UPDATE")
+	if env == "" {
+		return false
+	}
+
+	env = strings.ToLower(strings.TrimSpace(env))
+
+	return env == "true"
+}
