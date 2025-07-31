@@ -2,7 +2,7 @@
 
 > **One API. Any data. Beautiful diffs. Modern Go.**
 
-The most advanced golden test library for Go with **Go 1.21+ generics**, **context support**, **structured logging**, and gorgeous colored diff output. Built for modern Go applications.
+The most advanced golden test library for Go with **Go 1.24+ generics**, **smart JSON comparison**, **environment variable support**, and gorgeous colored diff output. Built for modern Go applications.
 
 ## ✨ Why Golden?
 
@@ -48,6 +48,10 @@ g := golden.New(t, golden.WithUpdate(true))
 
 // Use custom directory (default: "testdata")
 g := golden.New(t, golden.WithDir("my_golden_files"))
+
+// Or use environment variable for update mode
+// Set GOLDEN_UPDATE=true to enable update mode automatically
+g := golden.New(t) // Automatically checks GOLDEN_UPDATE env var
 ```
 
 ### Advanced Options (for power users)
@@ -91,6 +95,18 @@ When tests fail, you get gorgeous, informative output:
 ```
 
 ## 🔥 Smart Features
+
+### Environment Variable Support
+Set the `GOLDEN_UPDATE` environment variable to enable update mode automatically:
+
+```bash
+# Enable update mode for all tests
+GOLDEN_UPDATE=true go test ./...
+
+# Or set it in your shell
+export GOLDEN_UPDATE=true
+go test
+```
 
 ### Automatic JSON Formatting
 No more manual `json.Marshal` - just pass your data:
@@ -202,6 +218,8 @@ g.Assert("test", actual)
 ```bash
 go get github.com/sivchari/golden
 ```
+
+**Requirements**: Go 1.24 or later
 
 ## 🏗 Project Structure
 
