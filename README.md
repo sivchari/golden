@@ -94,6 +94,12 @@ When tests fail, you get gorgeous, informative output:
 💡 Tip: Run with update mode to accept changes
 ```
 
+## 🎬 Demo
+
+![Golden Test Library Demo](assets/demo.gif)
+
+*See Golden in action - one API for strings, JSON, structs, and more!*
+
 ## 🔥 Smart Features
 
 ### Environment Variable Support
