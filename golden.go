@@ -94,7 +94,7 @@ func (g *Golden) formatValue(value interface{}) []byte {
 	default:
 		// Apply field filtering for JSON-serializable data
 		filtered := g.filterIgnoredFields(v)
-		
+
 		// Try to marshal as JSON (works for structs, maps, slices, etc.)
 		if jsonBytes, err := json.MarshalIndent(filtered, "", "  "); err == nil {
 			return jsonBytes
@@ -144,19 +144,23 @@ func (g *Golden) filterIgnoredFields(value interface{}) interface{} {
 	switch v := value.(type) {
 	case map[string]interface{}:
 		filtered := make(map[string]interface{})
+
 		for key, val := range v {
 			// Skip ignored fields
 			if g.shouldIgnoreField(key) {
 				continue
 			}
+
 			filtered[key] = g.filterIgnoredFields(val)
 		}
+
 		return filtered
 	case []interface{}:
 		filtered := make([]interface{}, len(v))
 		for i, val := range v {
 			filtered[i] = g.filterIgnoredFields(val)
 		}
+
 		return filtered
 	default:
 		return value
@@ -170,6 +174,7 @@ func (g *Golden) shouldIgnoreField(field string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 

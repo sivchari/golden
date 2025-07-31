@@ -92,3 +92,21 @@ func TestAdvancedOptions(t *testing.T) {
 
 	g.Assert("advanced_options", apiResponse)
 }
+
+// Test environment variable GOLDEN_UPDATE.
+func TestEnvironmentUpdate(t *testing.T) {
+	// No WithUpdate() option - should use environment variable
+	g := golden.New(t)
+
+	data := "Environment variable test data MODIFIED"
+	g.Assert("env_test", data)
+}
+
+// Test WithUpdate() overrides environment variable.
+func TestUpdateOverride(t *testing.T) {
+	// WithUpdate(false) should override GOLDEN_UPDATE=1
+	g := golden.New(t, golden.WithUpdate(false))
+
+	data := "WithUpdate override test"
+	g.Assert("override_test", data)
+}
