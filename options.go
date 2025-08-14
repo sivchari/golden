@@ -7,20 +7,20 @@ import (
 	"strings"
 )
 
-// Options configures Golden test behavior with intelligent defaults.
+// Options configures Golden test behavior.
 type Options struct {
-	// Essential settings (what users actually need)
-	Update bool   // Update mode - the only setting most users need
+	// Basic settings
+	Update bool   // Update mode to create/update golden files
 	Dir    string // Golden file directory (defaults to "testdata")
 
-	// Advanced settings (smart defaults, but customizable)
-	IgnoreOrder   bool                               // Smart array order handling (default: true for JSON)
+	// Advanced settings
+	IgnoreOrder   bool                               // Array order handling (default: true for JSON)
 	IgnoreFields  []string                           // Specific JSON fields to ignore
-	CustomCompare func(expected, actual []byte) bool // For advanced users only
+	CustomCompare func(expected, actual []byte) bool // Custom comparison function
 
-	// Internal (automatically optimized)
-	contextLines int       // Optimized for readability
-	bufferSize   int       // Performance optimized
+	// Internal settings
+	contextLines int       // Lines of context in diff
+	bufferSize   int       // Buffer size for file operations
 	maxFileSize  int64     // Safety limit
 	input        io.Reader // For testing
 	output       io.Writer // For testing
@@ -29,7 +29,7 @@ type Options struct {
 // Option is a functional option for Golden.
 type Option func(*Options)
 
-// Essential options (what 95% of users need)
+// Basic options
 
 // WithUpdate enables update mode to create/update golden files.
 func WithUpdate(update bool) Option {
@@ -56,7 +56,7 @@ func WithDir(dir string) Option {
 	}
 }
 
-// Advanced options (for power users)
+// Advanced options
 
 // WithIgnoreFields ignores specific JSON fields during comparison
 // Example: WithIgnoreFields("created_at", "updated_at", "id").
@@ -80,19 +80,19 @@ func WithCustomCompare(fn func(expected, actual []byte) bool) Option {
 	}
 }
 
-// defaultOptions returns intelligent defaults optimized for the best experience.
+// defaultOptions returns default configuration.
 func defaultOptions() *Options {
 	return &Options{
-		// Essential defaults
+		// Default values
 		Dir:    "testdata",
 		Update: isUpdateModeFromEnv(), // Check GOLDEN_UPDATE environment variable
 
-		// Smart defaults for better experience
-		IgnoreOrder: true, // Most JSON comparisons don't care about array order
+		// JSON comparison defaults
+		IgnoreOrder: true, // Ignore array order for JSON
 
-		// Optimized internal settings
-		contextLines: 3,                // Good balance of context
-		bufferSize:   8192,             // Optimal for most file sizes
+		// Internal settings
+		contextLines: 3,                // Context lines in diff
+		bufferSize:   8192,             // File buffer size
 		maxFileSize:  50 * 1024 * 1024, // 50MB safety limit
 		input:        os.Stdin,
 		output:       os.Stdout,
