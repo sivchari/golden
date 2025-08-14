@@ -18,7 +18,7 @@ import (
 
 // Golden is the main structure for golden testing.
 type Golden struct {
-	t          *testing.T
+	t          testing.TB
 	options    *Options
 	manager    *manager.Manager
 	comparator *comparator.Comparator
@@ -26,7 +26,7 @@ type Golden struct {
 }
 
 // New creates a new Golden instance.
-func New(t *testing.T, opts ...Option) *Golden {
+func New(t testing.TB, opts ...Option) *Golden {
 	t.Helper()
 
 	options := defaultOptions()
@@ -37,7 +37,7 @@ func New(t *testing.T, opts ...Option) *Golden {
 	// Get test file and function name
 	testFile, testFunc := getTestInfo()
 
-	mgr := manager.New(options.Dir, testFile, testFunc)
+	mgr := manager.New("testdata", testFile, testFunc)
 
 	// Create comparator with smart options
 	compOpts := comparator.Options{
