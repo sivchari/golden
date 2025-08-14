@@ -32,8 +32,8 @@ func TestNewWithOptions(t *testing.T) {
 		WithIgnoreOrder(false),
 	)
 
-	if g.options.Dir != "custom" {
-		t.Errorf("Expected Dir=custom, got %s", g.options.Dir)
+	if g.options.Dir != "testdata/custom" {
+		t.Errorf("Expected Dir=testdata/custom, got %s", g.options.Dir)
 	}
 
 	if !g.options.Update {
@@ -78,7 +78,7 @@ func TestAssertComparison(t *testing.T) {
 	// Create golden file manually
 	goldenContent := "Expected output"
 
-	filename := filepath.Join(tmpDir, "golden_test_TestAssertComparison_comparison.golden")
+	filename := filepath.Join(tmpDir, "golden_test_TestAssertComparison_comparison.golden.go")
 	if err := os.MkdirAll(filepath.Dir(filename), 0o750); err != nil {
 		t.Fatalf("Failed to create directory: %v", err)
 	}

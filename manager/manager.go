@@ -110,7 +110,7 @@ func (m *Manager) lockFile(filename string, exclusive bool) func() {
 }
 
 // DefaultNaming implements the default naming strategy
-// Format: TestFunction_goldenName.golden.
+// Format: TestFunction_goldenName.golden.go.
 type DefaultNaming struct{}
 
 // GenerateFilename generates a filename using the default strategy.
@@ -118,14 +118,14 @@ func (dn *DefaultNaming) GenerateFilename(testFile, testFunc, goldenName string)
 	// Remove .go extension from test file
 	baseFile := strings.TrimSuffix(testFile, ".go")
 
-	// Generate filename: TestFile_TestFunction_goldenName.golden
-	return fmt.Sprintf("%s_%s_%s.golden", baseFile, testFunc, goldenName)
+	// Generate filename: TestFile_TestFunction_goldenName.golden.go
+	return fmt.Sprintf("%s_%s_%s.golden.go", baseFile, testFunc, goldenName)
 }
 
 // ParseFilename parses a filename to extract components.
 func (dn *DefaultNaming) ParseFilename(filename string) (testFile, testFunc, goldenName string, err error) {
-	// Remove .golden extension
-	base := strings.TrimSuffix(filename, ".golden")
+	// Remove .golden.go extension
+	base := strings.TrimSuffix(filename, ".golden.go")
 
 	// Split by underscore
 	parts := strings.Split(base, "_")
