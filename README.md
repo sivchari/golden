@@ -1,8 +1,8 @@
-# Golden - Modern Golden Test Library for Go 🚀
+# Golden - Golden Test Library for Go
 
-> **One API. Any data. Beautiful diffs. Modern Go.**
+> **Simple API. Any data type. Clear diffs.**
 
-The most advanced golden test library for Go with **Go 1.24+ generics**, **smart JSON comparison**, **environment variable support**, and gorgeous colored diff output. Built for modern Go applications.
+A golden test library for Go with **smart JSON comparison**, **environment variable support**, and colored diff output.
 
 ## ✨ Why Golden?
 
@@ -12,6 +12,7 @@ The most advanced golden test library for Go with **Go 1.24+ generics**, **smart
 - **⚡ High Performance** - Optimized for large files and parallel execution
 - **🔒 Thread Safe** - Perfect for concurrent test execution
 - **📁 Zero Config** - Works out of the box, customizable when needed
+- **🗂️ IDE Integration** - Golden files use `.golden.go` extension for better IDE support
 
 ## 🚀 Quick Start
 
@@ -40,21 +41,21 @@ func TestAnything(t *testing.T) {
 
 ## 📖 Complete API Reference
 
-### Essential Options (90% of users need only these)
+### Essential Options
 
 ```go
 // Create/update golden files
 g := golden.New(t, golden.WithUpdate(true))
 
-// Use custom directory (default: "testdata")
-g := golden.New(t, golden.WithDir("my_golden_files"))
+// Use custom directory (always placed under "testdata/")
+g := golden.New(t, golden.WithDir("my_golden_files")) // Creates testdata/my_golden_files/
 
 // Or use environment variable for update mode
 // Set GOLDEN_UPDATE=true to enable update mode automatically
 g := golden.New(t) // Automatically checks GOLDEN_UPDATE env var
 ```
 
-### Advanced Options (for power users)
+### Advanced Options
 
 ```go
 g := golden.New(t,
@@ -72,13 +73,13 @@ g := golden.New(t,
 )
 ```
 
-## 🎨 Beautiful Diff Output
+## 🎨 Diff Output
 
-When tests fail, you get gorgeous, informative output:
+When tests fail, you get clear, informative output:
 
 ```
 🔍 Golden test failed
-📁 File: testdata/example_test_TestAPI_response.golden
+📁 File: testdata/example_test_TestAPI_response.golden.go
 
 🔄 Differences found:
 ────────────────────────────────────────────────────────────────────────────────
@@ -229,14 +230,18 @@ go get github.com/sivchari/golden
 
 ## 🏗 Project Structure
 
+Golden files are automatically placed in the `testdata` directory with `.golden.go` extension. This ensures they are excluded from Go builds while maintaining IDE support.
+
 ```
 your-project/
-├── testdata/              # Golden files (default directory)
-│   ├── example_test_TestAPI_response.golden
-│   └── example_test_TestUser_profile.golden  
+├── testdata/              # Golden files (enforced directory)
+│   ├── example_test_TestAPI_response.golden.go
+│   └── example_test_TestUser_profile.golden.go  
 ├── example_test.go
 └── main.go
 ```
+
+**Note**: All golden files are stored in `testdata` or its subdirectories to avoid Go build conflicts. The `.golden.go` extension provides better IDE integration while being safely ignored by Go's build system when placed in `testdata`.
 
 ## 🤝 Contributing
 
@@ -250,4 +255,3 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 **Made with ❤️ for the Go community**
 
-*Golden Test Library - Because your tests deserve beautiful, reliable golden files.*
