@@ -57,15 +57,11 @@ func TestSmartComparison(t *testing.T) {
 	g.Assert("smart_comparison", data)
 }
 
-// Most users only need these two options!
+// Most users only need the update option!
 func TestEssentialOptions(t *testing.T) {
-	// Option 1: Update mode (create/update golden files)
+	// Update mode (create/update golden files)
 	g := golden.New(t, golden.WithUpdate(true))
 	g.Assert("update_example", "This creates/updates the golden file")
-
-	// Option 2: Custom directory (default is "testdata")
-	g2 := golden.New(t, golden.WithUpdate(true), golden.WithDir("custom_golden"))
-	g2.Assert("custom_dir", "Files go in custom_golden/ instead")
 }
 
 // Power user options: fine-grained control.
