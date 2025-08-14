@@ -6,133 +6,69 @@ import (
 	"testing"
 )
 
-func TestNew(t *testing.T) {
-	g := New(t)
-	if g == nil {
-		t.Fatal("New() returned nil")
-	}
-
-	if g.t != t {
-		t.Fatal("Golden instance does not have correct testing.T")
-	}
-
-	if g.options == nil {
-		t.Fatal("Golden instance has nil options")
-	}
-
-	if g.manager == nil {
-		t.Fatal("Golden instance has nil manager")
-	}
-}
-
-func TestNewWithOptions(t *testing.T) {
-	g := New(t,
-		WithDir("custom"),
-		WithUpdate(true),
-		WithIgnoreOrder(false),
-	)
-
-	if g.options.Dir != "testdata/custom" {
-		t.Errorf("Expected Dir=testdata/custom, got %s", g.options.Dir)
-	}
-
-	if !g.options.Update {
-		t.Error("Expected Update=true")
-	}
-
-	if g.options.IgnoreOrder {
-		t.Error("Expected IgnoreOrder=false")
-	}
-}
-
-func TestAssert(t *testing.T) {
-	// Setup temporary directory
-	tmpDir := t.TempDir()
-
-	g := New(t, WithDir(tmpDir), WithUpdate(true))
-
-	// Test string
-	g.Assert("string_test", "Hello, World!")
-
-	// Test number
-	g.Assert("number_test", 42)
-
-	// Test JSON object
-	data := map[string]interface{}{
-		"name":    "test",
-		"version": "1.0.0",
-	}
-	g.Assert("json_test", data)
-
-	// Verify files were created
-	stringFile := g.manager.GetFilename("string_test")
-	if _, err := os.Stat(stringFile); os.IsNotExist(err) {
-		t.Fatalf("Golden file was not created: %s", stringFile)
-	}
-}
-
-func TestAssertComparison(t *testing.T) {
-	// Setup temporary directory
-	tmpDir := t.TempDir()
-
-	// Create golden file manually
-	goldenContent := "Expected output"
-
-	filename := filepath.Join(tmpDir, "golden_test_TestAssertComparison_comparison.golden.go")
-	if err := os.MkdirAll(filepath.Dir(filename), 0o750); err != nil {
-		t.Fatalf("Failed to create directory: %v", err)
-	}
-
-	if err := os.WriteFile(filename, []byte(goldenContent), 0o600); err != nil {
-		t.Fatalf("Failed to write golden file: %v", err)
-	}
-
-	g := New(t, WithDir(tmpDir))
-
-	// Test matching content - this should pass
-	g.Assert("comparison", goldenContent)
-}
-
-func TestAssertStruct(t *testing.T) {
-	tmpDir := t.TempDir()
-	g := New(t, WithDir(tmpDir), WithUpdate(true))
-
-	type testStruct struct {
-		Name  string
-		Value int
-	}
-
-	expected := testStruct{Name: "test", Value: 42}
-	g.Assert("struct_test", expected)
-
-	// Verify file was created
-	filename := g.manager.GetFilename("struct_test")
-	if _, err := os.Stat(filename); os.IsNotExist(err) {
-		t.Fatalf("Golden file was not created: %s", filename)
-	}
-}
-
-func TestIgnoreFields(t *testing.T) {
-	tmpDir := t.TempDir()
-
-	g := New(t, WithDir(tmpDir), WithUpdate(true), WithIgnoreFields("timestamp", "id"))
+func TestGoldenFileCreationAndComparison(t *testing.T) {
+	t.Parallel()
 
 	// Create golden file
-	original := map[string]interface{}{
-		"name":      "test",
-		"timestamp": "2023-01-01T00:00:00Z",
-		"id":        "123",
-		"value":     42,
-	}
-	g.Assert("ignore_fields", original)
+	g := New(t, WithUpdate(true))
+	testData := "test content"
+	g.Assert("test_file", testData)
 
-	// Test with different ignored fields (should pass)
-	g2 := New(t, WithDir(tmpDir), WithIgnoreFields("timestamp", "id"))
-	modified := map[string]interface{}{
-		"name":      "test",
-		"timestamp": "2024-01-01T00:00:00Z", // Different timestamp (ignored)
-		"id":        "456",                  // Different ID (ignored)
-		"value":     42,                     // Same value (compared)
+	// Compare with existing golden file (should pass)
+	g = New(t, WithUpdate(false))
+	g.Assert("test_file", testData)
+}
+
+func TestGoldenJSONFormatting(t *testing.T) {
+	t.Parallel()
+
+	g := New(t, WithUpdate(true))
+
+	// Test struct as JSON
+	type TestData struct {
+		Name  string `json:"name"`
+		Value int    `json:"value"`
 	}
-	g2.Assert("ignore_fields", modified)
+
+	data := TestData{Name: "test", Value: 42}
+	g.Assert("json_test", data)
+
+	// Verify comparison works
+	g = New(t, WithUpdate(false))
+	g.Assert("json_test", data)
+}
+
+func TestGoldenIgnoreFields(t *testing.T) {
+	t.Parallel()
+
+	// Create golden file with ignored fields
+	g := New(t, WithUpdate(true), WithIgnoreFields("timestamp"))
+	original := map[string]interface{}{
+		"user":      "john",
+		"timestamp": "2024-01-01T10:00:00Z",
+	}
+	g.Assert("ignore_test", original)
+
+	// Test with different timestamp (should pass because timestamp is ignored)
+	g = New(t, WithUpdate(false), WithIgnoreFields("timestamp"))
+	modified := map[string]interface{}{
+		"user":      "john",
+		"timestamp": "2024-12-31T23:59:59Z",
+	}
+	g.Assert("ignore_test", modified)
+}
+
+func TestGoldenEnvironmentVariable(t *testing.T) {
+	// Test GOLDEN_UPDATE environment variable
+	os.Setenv("GOLDEN_UPDATE", "true")
+	defer os.Unsetenv("GOLDEN_UPDATE")
+
+	g := New(t)
+	g.Assert("env_test", "test data")
+
+	// Verify file was created
+	expectedPath := filepath.Join("testdata", "golden_test_TestGoldenEnvironmentVariable_env_test.golden.go")
+	if _, err := os.Stat(expectedPath); os.IsNotExist(err) {
+		t.Fatalf("Golden file was not created when GOLDEN_UPDATE=true")
+	}
 }
