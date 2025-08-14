@@ -47,9 +47,6 @@ func TestAnything(t *testing.T) {
 // Create/update golden files
 g := golden.New(t, golden.WithUpdate(true))
 
-// Use custom directory (always placed under "testdata/")
-g := golden.New(t, golden.WithDir("my_golden_files")) // Creates testdata/my_golden_files/
-
 // Or use environment variable for update mode
 // Set GOLDEN_UPDATE=true to enable update mode automatically
 g := golden.New(t) // Automatically checks GOLDEN_UPDATE env var
@@ -245,7 +242,7 @@ your-project/
 
 ## 🤝 Contributing
 
-We love contributions! Please see our [Contributing Guide](CONTRIBUTING.md).
+We love contributions! Please feel free to submit issues and pull requests on GitHub.
 
 ## 📄 License
 
