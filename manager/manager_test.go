@@ -31,7 +31,7 @@ func TestGetFilename(t *testing.T) {
 	m := New("testdata", "example_test.go", "TestBasic")
 	filename := m.GetFilename("output")
 
-	expected := filepath.Join("testdata", "example_test_TestBasic_output.golden")
+	expected := filepath.Join("testdata", "example_test_TestBasic_output.golden.go")
 	if filename != expected {
 		t.Errorf("Expected filename=%s, got %s", expected, filename)
 	}
@@ -104,9 +104,9 @@ func TestDefaultNamingGenerateFilename(t *testing.T) {
 		goldenName string
 		expected   string
 	}{
-		{"test.go", "TestBasic", "output", "test_TestBasic_output.golden"},
-		{"example_test.go", "TestComplex", "result", "example_test_TestComplex_result.golden"},
-		{"my_test.go", "TestWithNumbers123", "data", "my_test_TestWithNumbers123_data.golden"},
+		{"test.go", "TestBasic", "output", "test_TestBasic_output.golden.go"},
+		{"example_test.go", "TestComplex", "result", "example_test_TestComplex_result.golden.go"},
+		{"my_test.go", "TestWithNumbers123", "data", "my_test_TestWithNumbers123_data.golden.go"},
 	}
 
 	for _, tt := range tests {
@@ -128,11 +128,11 @@ func TestDefaultNamingParseFilename(t *testing.T) {
 		expectedGolden string
 		expectError    bool
 	}{
-		{"test_TestBasic_output.golden", "test.go", "TestBasic", "output", false},
-		{"example_test_TestComplex_result.golden", "example_test.go", "TestComplex", "result", false},
-		{"my_test_TestWithNumbers123_data.golden", "my_test.go", "TestWithNumbers123", "data", false},
-		{"invalid.golden", "", "", "", true},
-		{"too_short.golden", "", "", "", true},
+		{"test_TestBasic_output.golden.go", "test.go", "TestBasic", "output", false},
+		{"example_test_TestComplex_result.golden.go", "example_test.go", "TestComplex", "result", false},
+		{"my_test_TestWithNumbers123_data.golden.go", "my_test.go", "TestWithNumbers123", "data", false},
+		{"invalid.golden.go", "", "", "", true},
+		{"too_short.golden.go", "", "", "", true},
 	}
 
 	for _, tt := range tests {

@@ -3,6 +3,7 @@ package golden
 import (
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -37,10 +38,21 @@ func WithUpdate(update bool) Option {
 	}
 }
 
-// WithDir sets custom golden file directory (default: "testdata").
+// WithDir sets custom golden file directory within testdata (default: "testdata").
+// If the provided directory doesn't start with "testdata", it will be placed under testdata.
 func WithDir(dir string) Option {
 	return func(o *Options) {
-		o.Dir = dir
+		// Always ensure the directory is under testdata to avoid Go build issues
+		if dir == "" {
+			o.Dir = "testdata"
+		} else if filepath.IsAbs(dir) {
+			// If it's an absolute path (for testing), use it as-is
+			o.Dir = dir
+		} else if strings.HasPrefix(dir, "testdata") {
+			o.Dir = dir
+		} else {
+			o.Dir = filepath.Join("testdata", dir)
+		}
 	}
 }
 
