@@ -60,8 +60,7 @@ func TestGoldenIgnoreFields(t *testing.T) {
 
 func TestGoldenEnvironmentVariable(t *testing.T) {
 	// Test GOLDEN_UPDATE environment variable
-	os.Setenv("GOLDEN_UPDATE", "true")
-	defer os.Unsetenv("GOLDEN_UPDATE")
+	t.Setenv("GOLDEN_UPDATE", "true")
 
 	g := New(t)
 	g.Assert("env_test", "test data")

@@ -26,8 +26,8 @@ type Golden struct {
 }
 
 // New creates a new Golden instance.
-func New(t testing.TB, opts ...Option) *Golden {
-	t.Helper()
+func New(tb testing.TB, opts ...Option) *Golden {
+	tb.Helper()
 
 	options := defaultOptions()
 	for _, opt := range opts {
@@ -55,7 +55,7 @@ func New(t testing.TB, opts ...Option) *Golden {
 	diff := differ.NewWithOptions(diffOpts)
 
 	return &Golden{
-		t:          t,
+		t:          tb,
 		options:    options,
 		manager:    mgr,
 		comparator: comp,

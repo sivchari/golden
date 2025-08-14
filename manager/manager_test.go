@@ -6,6 +6,7 @@ import (
 
 func TestNamingStrategy(t *testing.T) {
 	t.Parallel()
+
 	naming := &DefaultNaming{}
 
 	// Test GenerateFilename
@@ -31,6 +32,7 @@ func TestNamingStrategy(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParseFilename() error = %v", err)
 	}
+
 	if testFile != "test.go" || testFunc != "TestBasic" || goldenName != "output" {
 		t.Errorf("ParseFilename() = (%s, %s, %s), want (test.go, TestBasic, output)",
 			testFile, testFunc, goldenName)
