@@ -16,6 +16,9 @@ type Options struct {
 	IgnoreFields  []string                           // Specific JSON fields to ignore
 	CustomCompare func(expected, actual []byte) bool // Custom comparison function
 
+	// Path settings
+	BaseDir string // Base directory for golden files (default: "testdata")
+
 	// Internal settings
 	contextLines int       // Lines of context in diff
 	bufferSize   int       // Buffer size for file operations
@@ -53,6 +56,14 @@ func WithIgnoreOrder(ignore bool) Option {
 func WithCustomCompare(fn func(expected, actual []byte) bool) Option {
 	return func(o *Options) {
 		o.CustomCompare = fn
+	}
+}
+
+// WithBaseDir sets a custom base directory for golden files.
+// Default is "testdata".
+func WithBaseDir(dir string) Option {
+	return func(o *Options) {
+		o.BaseDir = dir
 	}
 }
 

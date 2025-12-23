@@ -71,3 +71,25 @@ func TestGoldenEnvironmentVariable(t *testing.T) {
 		t.Fatalf("Golden file was not created when GOLDEN_UPDATE=true")
 	}
 }
+
+func TestGoldenWithBaseDir(t *testing.T) {
+	t.Parallel()
+
+	// Create a temporary directory for the custom base dir
+	customDir := t.TempDir()
+
+	// Create golden file in custom directory
+	g := New(t, WithUpdate(true), WithBaseDir(customDir))
+	testData := "custom dir test content"
+	g.Assert("basedir_test", testData)
+
+	// Verify file was created in custom directory
+	expectedPath := filepath.Join(customDir, "golden_test_TestGoldenWithBaseDir_basedir_test.golden.go")
+	if _, err := os.Stat(expectedPath); os.IsNotExist(err) {
+		t.Fatalf("Golden file was not created in custom base directory: %s", expectedPath)
+	}
+
+	// Compare with existing golden file (should pass)
+	g = New(t, WithUpdate(false), WithBaseDir(customDir))
+	g.Assert("basedir_test", testData)
+}
