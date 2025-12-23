@@ -37,7 +37,13 @@ func New(tb testing.TB, opts ...Option) *Golden {
 	// Get test file and function name
 	testFile, testFunc := getTestInfo()
 
-	mgr := manager.New("testdata", testFile, testFunc)
+	// Use custom baseDir if provided, otherwise default to "testdata"
+	baseDir := options.BaseDir
+	if baseDir == "" {
+		baseDir = "testdata"
+	}
+
+	mgr := manager.New(baseDir, testFile, testFunc)
 
 	// Create comparator with smart options
 	compOpts := comparator.Options{
